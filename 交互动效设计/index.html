@@ -1,0 +1,2478 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <!-- 响应式视口设置 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <!-- 优化触摸交互 -->
+    <style>
+        /* 增大按钮点击区域 */
+        .btn, .accordion-btn {
+            min-height: 44px; /* 苹果推荐的最小触控尺寸 */
+            padding: 12px 24px;
+        }
+        
+        /* 禁用长按菜单 */
+        * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+        }
+    .puzzle-target { 
+     display: flex; 
+     flex-wrap: wrap; 
+     width: 200px; 
+     height: 200px; 
+     margin: 0 auto; 
+     border: 3px solid #8b4513; 
+     background: #f0e6d2; 
+ } 
+ 
+ .puzzle-slot { 
+     width: 50%; 
+     height: 50%; 
+     border: 1px dashed #8b4513; 
+     box-sizing: border-box; 
+     display: flex; 
+     justify-content: center; 
+     align-items: center; 
+     overflow: hidden; 
+     position: relative; 
+ } 
+ 
+ .puzzle-piece {
+    width: 80px;
+    height: 80px;
+    border: 2px dashed #8b4513;
+    cursor: move;
+    object-fit: cover;
+    /* 添加以下属性确保更好的交互体验 */
+    transition: transform 0.2s;
+    user-select: none;
+}
+</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>探索秦兵马俑 - 交互动效设计</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Microsoft YaHei', sans-serif;
+            background-color: #f5f2e9;
+            color: #333;
+            overflow-x: hidden;
+        }
+        
+        /* 信息卡片样式 */
+        .info-card {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            max-width: 300px;
+            text-align: center;
+            z-index: 1000;
+        }
+        
+        .info-card h3 {
+            color: #8b4513;
+            margin-bottom: 10px;
+        }
+        
+        .info-card p {
+            color: #5a3921;
+            line-height: 1.5;
+        }
+        
+        /* 时间轴样式 */
+        .timeline-container {
+            margin: 1px 0;
+            width: 100%;
+            overflow-x: auto;
+        }
+        
+        .timeline-dot {
+            transition: all 0.3s ease;
+        }
+        
+        .timeline-dot:hover {
+            r: 12;
+            fill: #5a3921;
+        }
+        
+        /* 视频缩略图样式 */
+        .video-thumbnail {
+            position: relative;
+            width: 200px;
+            margin: 20px auto;
+            cursor: pointer;
+        }
+        
+        .thumbnail-img {
+            width: 100%;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .play-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            color: white;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        /* 兵马俑彩绘颜色调色板样式 */
+    .terracotta-colors {
+        margin: 30px 0;
+        padding: 20px;
+        background: rgba(255,255,255,0.8);
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .color-palette {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        margin-bottom: 30px;
+    }
+
+    .color-option {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin: 10px;
+        cursor: pointer;
+        transition: transform 0.3s, box-shadow 0.3s;
+        position: relative;
+        border: 3px solid #fff;
+        box-shadow: 0 0 5px rgba(0,0,0,0.2);
+    }
+
+    .color-option:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    }
+
+    .color-option::after {
+        content: attr(data-name);
+        position: absolute;
+        bottom: -25px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.9em;
+        white-space: nowrap;
+        color: #5a3921;
+    }
+
+    .color-details {
+        display: none;
+        padding: 20px;
+        background: #f9f5e9;
+        border-radius: 8px;
+        animation: fadeIn 0.5s;
+        margin-top: 20px;
+        border: 1px solid #d4c19a;
+    }
+
+    .highlight {
+        font-weight: bold;
+        color: #8b4513;
+    }
+
+    .technique {
+        margin-top: 40px;
+        padding: 20px;
+        background: #e8e0d0;
+        border-radius: 8px;
+    }
+
+    /* 颜色定义 */
+    .red { background: linear-gradient(135deg, #c62828 50%, #8e0000 50%); }
+    .green { background: linear-gradient(135deg, #2e7d32 50%, #00695c 50%); }
+    .purple { background: linear-gradient(135deg, #7b1fa2 50%, #4a148c 50%); }
+    .pink { background: linear-gradient(135deg, #f8bbd0 50%, #f06292 50%); }
+    .black { background: linear-gradient(135deg, #212121 50%, #000000 50%); }
+
+        @media screen and (max-width: 768px) {
+        .container {
+            width: 100%;
+            padding: 10px;
+        }
+        h1 {
+            font-size: 24px;
+        }
+        h2 {
+            font-size: 20px;
+        }
+        p {
+            font-size: 16px;
+        }
+        body {
+            font-size: 14px;
+        }
+        .container {
+            max-width: 100%;
+            padding: 10px;
+        }
+        .scene {
+            height: auto;
+        }
+        .timeline-svg {
+            width: 100%;
+            height: auto;
+        }
+    }
+        
+        .container { 
+   max-width: 100%; 
+   width: 100%; 
+   margin: 0 auto; 
+   padding: 20px; 
+   box-sizing: border-box; 
+    
+   position: relative; 
+ }
+        
+        h1 {
+            text-align: center;
+            color: #8b4513;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+        }
+        
+        .scene { 
+   min-height: auto; 
+   overflow-y: visible; 
+   display: none; 
+   flex-direction: column; 
+   justify-content: flex-start; 
+   padding: 20px 0; 
+   position: relative; 
+   top: 0; 
+   left: 0; 
+   right: 0; 
+   bottom: 0; 
+   opacity: 0; 
+   transition: opacity 0.5s; 
+   box-sizing: border-box; 
+ } 
+ 
+ .scene.active { 
+   display: flex; 
+   opacity: 1; 
+ }
+        
+        .scene.active {
+            opacity: 1;
+        }
+        
+
+        
+        .content {
+            padding: 0 15px;
+            background-color: rgba(255,255,255,0.8);
+            border-radius: 8px;
+            margin: 10px 0;
+            max-width: 100%;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #8b4513;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 16px 16px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #a0522d;
+            transform: translateY(-2px);
+        }
+        
+        .navigation {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #ccc;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .nav-dot.active {
+            background-color: #8b4513;
+            transform: scale(1.3);
+        }
+        
+        .terracotta-figure {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .terracotta-figure:hover {
+            filter: drop-shadow(0 0 8px rgba(139, 69, 19, 0.6));
+        }
+        
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+            /* 碎片拼接组件样式 */
+        .puzzle-container {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f4e9;
+            border-radius: 8px;
+        }
+        
+        .puzzle-pieces {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .puzzle-piece {
+            width: 80px;
+            height: 80px;
+            border: 2px dashed #8b4513;
+            cursor: move;
+        }
+        
+        .puzzle-target {
+            width: 200px;
+            height: auto;
+            min-height: 150px;
+            margin: 0 auto;
+            border: 3px solid #8b4513;
+            background: #f0e6d2;
+        }
+        
+        /* 考古照片画廊样式 */
+        .gallery-container {
+            margin: 20px 0;
+        }
+        
+        .gallery {
+            display: flex;
+            gap: 10px;
+            margin: 15px auto;
+        }
+        
+        .gallery img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        
+        .gallery-nav {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        /* 挖井动画样式 */
+        .digging-animation {
+            margin: 10px 0;
+        }
+        
+        .animation-container {
+            position: relative;
+            height: 100px;
+            margin: 15px 0;
+        }
+        
+        .animation-container img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .animation-container img.active {
+            opacity: 1;
+        }
+        
+        .animation-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .frame-slider {
+            flex-grow: 1;
+        }
+        /* 新增的交互式保护展示样式 - 开始 */
+.interactive-protection {
+    margin: 30px 0;
+    background: rgba(255,255,255,0.8);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.terracotta-army {
+    width: 100%;
+    height: 300px;
+    background-image: url(images/背景.jpg);
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.info-panel {
+    padding: 15px;
+    display: none;
+    animation: fadeIn 0.5s ease-out;
+    background: #f9f5e9;
+    border-radius: 5px;
+    margin-top: 15px;
+    border: 1px solid #d4c19a;
+}
+
+.info-panel h3 {
+    color: #8b4513;
+    margin-top: 0;
+    border-bottom: 1px solid #8b4513;
+    padding-bottom: 8px;
+}
+
+.info-panel p {
+    color: #5a3921;
+    line-height: 1.6;
+}
+
+.info-panel ul {
+    padding-left: 20px;
+}
+
+.info-panel li {
+    margin-bottom: 8px;
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.hotspot {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background-color: rgba(255, 255, 0, 0.5);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: #333;
+}
+
+.hotspot:hover {
+    transform: scale(1.2);
+    background-color: rgba(255, 255, 0, 0.8);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+/* 新增的交互式保护展示样式 - 结束 */
+            /* 制作步骤流程图样式 */
+        .process-flow {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f4e9;
+            border-radius: 8px;
+        }
+        
+        .flow-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 15px 0;
+        }
+        
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            background: #8b4513;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .step-arrow {
+            color: #8b4513;
+            font-size: 20px;
+        }
+        
+        /* 材料来源地图样式 */
+        .material-map {
+            margin: 60px 0;
+        }
+        
+        .map-container {
+            position: relative;
+            margin: 30px auto;
+        }
+        
+        .map-container img {
+            width: 100%;
+            border-radius: 4px;
+        }
+        
+        .map-marker {
+            position: absolute;
+            transform: translate(-50%, -50%);
+        }
+        
+        .marker-dot {
+            width: 8px;
+            height: 8px;
+            background: #000000;
+            border-radius: 50%;
+            margin: 0 auto;
+        }
+        
+        .marker-label {
+            margin-top: 5px;
+            padding: 2px 8px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        
+        /* 烧制温度图表样式 */
+        .temperature-chart {
+            margin: 20px 0;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 200px;
+            margin: 15px 0;
+            border-left: 1px solid #8b4513;
+            border-bottom: 1px solid #8b4513;
+        }
+        
+        .chart-grid {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .grid-line {
+            height: 1px;
+            background: rgba(139,69,19,0.2);
+            margin-bottom: 66px;
+        }
+        
+        .chart-data {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .data-point {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #d62828;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .point-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+        }
+        
+        .chart-labels {
+            display: flex;
+            justify-content: space-between;
+        }
+        /* 兵马俑制作交互动画样式 */
+    .terracotta-crafting {
+        margin: 20px 0;
+        padding: 15px;
+        background: #f8f4e9;
+        border-radius: 8px;
+        border: 1px solid #d4c19a;
+        overflow: hidden; /* 添加溢出隐藏 */
+    }
+
+    .workshop {
+        width: 100%;
+        height: 400px;
+        background-color: #e8d5b5;
+        border-radius: 10px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin: 15px 0 auto;
+        background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M0,0 L100,0 L100,100 L0,100 Z" fill="none" stroke="%23d4c19a" stroke-width="1"/></svg>');
+        background-size: 20px 20px;
+    }
+
+    .clay {
+        width: 80px;
+        height: 80px;
+        background-color: #c19a6b;
+        border-radius: 50%;
+        position: absolute;
+        left: 30px;
+        top: 160px;
+        cursor: pointer;
+        transition: all 0.5s;
+        box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2), 
+                    inset 5px 5px 10px rgba(255,255,255,0.1),
+                    3px 3px 5px rgba(0,0,0,0.1);
+    }
+
+    .water {
+        width: 60px;
+        height: 60px;
+        background-color: rgba(64, 164, 223, 0.6);
+        border-radius: 50%;
+        position: absolute;
+        left: 150px;
+        top: 170px;
+        cursor: pointer;
+        transition: all 0.5s;
+        box-shadow: inset -3px -3px 6px rgba(0,0,0,0.1), 
+                    inset 3px 3px 6px rgba(255,255,255,0.2),
+                    2px 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .mixing-bowl {
+        width: 150px;
+        height: 90px;
+        background-color: rgba(255,255,255,0.3);
+        border-radius: 50%;
+        position: absolute;
+        left: 100px;
+        top: 150px;
+        border: 10px solid rgba(255,255,255,0.5);
+        box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        display: none;
+        transition: opacity 0.5s;
+    }
+
+    .mixed-clay {
+        width: 100px;
+        height: 100px;
+        background-color: #a67c52;
+        border-radius: 50%;
+        position: absolute;
+        left: 100px;
+        top: 150px;
+        display: none;
+        cursor: pointer;
+        transition: all 0.5s;
+        box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2), 
+                    inset 5px 5px 10px rgba(255,255,255,0.1),
+                    3px 3px 5px rgba(0,0,0,0.1);
+    }
+
+    .workbench {
+        width: 200px;
+        height: 40px;
+        background-color: #8c4a3c;
+        position: absolute;
+        left: 100px;
+        top: 280px;
+        border-radius: 5px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        display: none;
+        transition: opacity 0.5s;
+    }
+
+    .terracotta {
+        position: absolute;
+        left: 150px;
+        top: 120px;
+        display: none;
+        transition: all 0.3s;
+    }
+
+    .body {
+        width: 80px;
+        height: 130px;
+        background-color: #a67c52;
+        position: relative;
+        border-radius: 15px 15px 0 0;
+        box-shadow: inset -3px -3px 6px rgba(0,0,0,0.2), 
+                    inset 3px 3px 6px rgba(255,255,255,0.1);
+        z-index: 2;
+    }
+
+    .head {
+        width: 60px;
+        height: 70px;
+        background-color: #a67c52;
+        position: absolute;
+        top: -60px;
+        left: 10px;
+        border-radius: 30px 30px 15px 15px;
+        box-shadow: inset -3px -3px 6px rgba(0,0,0,0.2), 
+                    inset 3px 3px 6px rgba(255,255,255,0.1);
+        z-index: 3;
+    }
+
+    .arm, .leg {
+        background-color: #a67c52;
+        position: absolute;
+        box-shadow: inset -2px -2px 4px rgba(0,0,0,0.2), 
+                    inset 2px 2px 4px rgba(255,255,255,0.1);
+        cursor: move;
+        z-index: 1;
+        transition: transform 0.3s;
+        display: none;
+    }
+
+    .arm {
+        width: 30px;
+        height: 80px;
+        border-radius: 15px;
+    }
+
+    .arm.left {
+        transform-origin: auto;
+    }
+
+    .arm.right {
+        transform-origin: auto;
+    }
+
+    .leg {
+        width: 35px;
+        height: 80px;
+        border-radius: 18px;
+        transform-origin: auto;
+    }
+
+    .attachment-point {
+        width: 15px;
+        height: 15px;
+        background-color: rgba(255,0,0,0.3);
+        border-radius: 50%;
+        position: absolute;
+        display: none;
+    }
+
+    .controls {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+        justify-content: center;
+    }
+
+    .controls button {
+        padding: 8px 16px;
+        background-color: #8b4513;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .controls button:hover {
+        background-color: #6d3a30;
+        transform: translateY(-1px);
+    }
+
+    .controls button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .progress-container {
+        width: 100%;
+        height: 15px;
+        background-color: #ddd;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .progress-bar {
+        height: 100%;
+        background: linear-gradient(to right, #8b4513, #a67c52);
+        border-radius: 8px;
+        width: 0%;
+        transition: width 0.5s;
+        box-shadow: inset 0 1px 2px rgba(255,255,255,0.3);
+    }
+
+    .success-message {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        z-index: 100;
+        display: none;
+        animation: fadeIn 0.5s;
+        max-width: 300px;
+        width: 90%;
+    }
+
+    .success-message h2 {
+        color: #8b4513;
+        margin-top: 0;
+        font-size: 20px;
+    }
+
+    .success-message p {
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    .close-message {
+        margin-top: 10px;
+        padding: 6px 12px;
+        background-color: #8b4513;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .part-label {
+        position: absolute;
+        font-size: 10px;
+        color: white;
+        text-shadow: 0 0 2px rgba(0,0,0,0.5);
+        pointer-events: none;
+        z-index: 4;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        width: 100%;
+    }
+
+    .fade-out {
+        opacity: 0;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+            /* 文明对比时间轴样式 */
+        .civilization-timeline {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f4e9;
+            border-radius: 8px;
+        }
+        
+        .timeline-container {
+            position: relative;
+            height: auto;
+            margin: 10px 0;
+        }
+        
+        .timeline-line {
+            position: absolute;
+            top: 50%;
+            left: 5%;
+            width: 90%;
+            height: 3px;
+            background: #8b4513;
+            transform: translateY(-50%);
+        }
+        
+        .timeline-event {
+            position: absolute;
+            top: 50%;
+            width: 200px;
+            transform: translate(-50%, -50%);
+        }
+        
+        .event-dot {
+            width: 15px;
+            height: 15px;
+            margin: 0 auto;
+            background: #d62828;
+            border-radius: 50%;
+            border: 3px solid #8b4513;
+        }
+        
+        .event-content {
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .event-content h4 {
+            margin: 0 0 5px 0;
+            color: #5a3921;
+        }
+        
+        .event-content p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        /* 时间轴照片样式 */
+        .timeline-photos {
+            position: relative;
+            height: 200px;
+            margin: 0px 0;
+        }
+        
+        .timeline-photo {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        
+        .timeline-photo.active {
+            opacity: 1;
+        }
+        
+        /* 历史背景视频样式 */
+        .history-video {
+            margin: 20px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .history-video video {
+            width: 100%;
+            display: block;
+        }
+        .material-info-modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.7);
+    }
+    
+    .modal-content {
+        background-color: #f8f4e9;
+        margin: 10% auto;
+        padding: 20px;
+        border: 2px solid #8b4513;
+        border-radius: 10px;
+        width: 80%;
+        max-width: 600px;
+        position: relative;
+        animation: modalFadeIn 0.3s;
+    }
+    
+    @keyframes modalFadeIn {
+        from {opacity: 0; transform: translateY(-50px);}
+        to {opacity: 1; transform: translateY(0);}
+    }
+    
+    .close-modal {
+        color: #8b4513;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    
+    .close-modal:hover {
+        color: #5a3921;
+    }
+    
+    #material-info-content {
+        padding: 10px;
+        color: #5a3921;
+        line-height: 1.6;
+    }
+    
+    .map-marker {
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .map-marker:hover .marker-dot {
+        transform: scale(1.5);
+        background: #8b4513;
+    }
+    
+    .map-marker:hover .marker-label {
+        background: #8b4513;
+    }
+    </style>
+    
+    <script>
+        // 时间轴照片切换
+        document.querySelectorAll('.timeline-dot').forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                // 移除所有照片的active类
+                document.querySelectorAll('.timeline-photo').forEach(photo => {
+                    photo.classList.remove('active');
+                });
+                
+                // 获取年份文本
+                const yearText = dot.parentNode.querySelector('text').textContent;
+                console.log('点击年份:', yearText);
+                
+                // 根据年份显示对应图片
+                const photos = document.querySelectorAll('.timeline-photo');
+                if(yearText === '1974' && photos[0]) photos[0].classList.add('active');
+                if(yearText === '1976' && photos[1]) photos[1].classList.add('active');
+                if(yearText === '1979' && photos[2]) photos[2].classList.add('active');
+                if(yearText === '1987' && photos[3]) photos[3].classList.add('active');
+                if(yearText === '1994' && photos[4]) photos[4].classList.add('active');
+            });
+        });
+    document.addEventListener('DOMContentLoaded', function() { 
+     const puzzlePieces = document.querySelectorAll('.puzzle-piece'); 
+     const puzzleSlots = document.querySelectorAll('.puzzle-slot'); 
+     let currentSlot = 1; 
+ 
+     // 确保图片可拖动
+     document.querySelectorAll('.puzzle-piece').forEach(piece => {
+         piece.setAttribute('draggable', 'true');
+     });
+ 
+     puzzlePieces.forEach(piece => { 
+         piece.addEventListener('dragstart', function(e) { 
+             e.dataTransfer.setData('text/plain', this.dataset.piece); 
+             e.dataTransfer.setData('imgSrc', this.src); // 同时传递图片源
+         }); 
+     }); 
+ 
+     puzzleSlots.forEach(slot => { 
+         slot.addEventListener('dragover', function(e) { 
+             e.preventDefault(); 
+         }); 
+ 
+         slot.addEventListener('drop', function(e) { 
+             e.preventDefault(); 
+             const pieceNumber = e.dataTransfer.getData('text/plain'); 
+             const imgSrc = e.dataTransfer.getData('imgSrc');
+             
+             // 检查是否按顺序放置 
+             if (parseInt(this.dataset.slot) === currentSlot) { 
+                 this.innerHTML = `<img src="${imgSrc}" style="width:100%;height:100%;object-fit:contain;">`;
+                 currentSlot++; 
+                 
+                 // 检查是否完成拼接 
+                 if (currentSlot > 4) { 
+                     alert('恭喜！陶俑碎片拼接完成！'); 
+                 } 
+             } else { 
+                 alert('请按顺序拼接碎片！'); 
+             } 
+         }); 
+        });
+    });
+</script>
+</head>
+<body>
+    <div class="container">
+        <h1>探索秦兵马俑</h1>
+        
+        <!-- 序幕 -->
+        <div class="scene active" id="prologue">
+            <div class="content">
+                <h2>世界第八大奇迹</h2>
+                <p>秦始皇兵马俑是中国古代辉煌文明的一张金字名片，被誉为"世界第八大奇迹"。1974年，当地农民在打井时偶然发现了这一震惊世界的考古发现。</p>
+                
+                <!-- 时间轴SVG动画 -->
+                <div class="timeline-container">
+                    <svg id="timeline-svg" width="100%" height="80">
+                        <line x1="10%" y1="50%" x2="90%" y2="50%" stroke="#8b4513" stroke-width="3" />
+                        <circle cx="10%" cy="50%" r="8" fill="#8b4513" class="timeline-dot" data-year="1974" />
+                        <circle cx="30%" cy="50%" r="8" fill="#8b4513" class="timeline-dot" data-year="1976" />
+                        <circle cx="50%" cy="50%" r="8" fill="#8b4513" class="timeline-dot" data-year="1979" />
+                        <circle cx="70%" cy="50%" r="8" fill="#8b4513" class="timeline-dot" data-year="1987" />
+                        <circle cx="90%" cy="50%" r="8" fill="#8b4513" class="timeline-dot" data-year="1994" />
+                        <text x="10%" y="30%" text-anchor="middle" font-size="12">1974年发现</text>
+                        <text x="30%" y="30%" text-anchor="middle" font-size="12">1976发掘</text>
+                        <text x="50%" y="30%" text-anchor="middle" font-size="12">1979开放</text>
+                        <text x="70%" y="30%" text-anchor="middle" font-size="12">1987申遗</text>
+                        <text x="90%" y="30%" text-anchor="middle" font-size="12">1994保护</text>
+                    <!-- 在第三幕的SVG部分，修改play-process按钮和添加新的交互元素 --> 
+                    <!-- 添加进度条 -->
+                    <rect x="100" y="330" width="600" height="10" fill="#e0e0e0" rx="5" />
+                    <rect id="progress-bar" x="100" y="330" width="0" height="10" fill="#8b4513" rx="5" />
+                    
+                    <!-- 添加步骤标签高亮 -->
+                    <g id="step-labels">
+                        <rect x="90" y="340" width="20" height="20" fill="#8b4513" rx="3" opacity="0.5" />
+                        <rect x="240" y="340" width="20" height="20" fill="#8b4513" rx="3" opacity="0.5" />
+                        <rect x="390" y="340" width="20" height="20" fill="#8b4513" rx="3" opacity="0.5" />
+                        <rect x="540" y="340" width="20" height="20" fill="#8b4513" rx="3" opacity="0.5" />
+                    </g> 
+ 
+ <!-- 添加进度条 --> 
+ <rect x="100" y="330" width="600" height="10" fill="#e0e0e0" rx="5" /> 
+ <rect id="progress-bar" x="100" y="330" width="0" height="10" fill="#8b4513" rx="5" /> 
+ 
+ <!-- 添加步骤标签高亮 --> 
+ <g id="step-labels"> 
+     <rect x="90" y="340" width="20" height="20" fill="#8b4513" rx="3" opacity="0.5" /> 
+     <rect x="240" y="340" width="20" height="20" fill="#8b4513" rx="3" opacity="0.5" /> 
+     <rect x="390" y="340" width="20" height="20" fill="#8b4513" rx="3" opacity="0.5" /> 
+     <rect x="540" y="340" width="20" height="20" fill="#8b4513" rx="3" opacity="0.5" /> 
+ </g>
+</svg>
+                </div>
+                
+                <!-- 时间轴照片显示区域 -->
+                <div class="timeline-photos">
+                    <img src="images/1974发现.jpg" alt="1974年发现照片" class="timeline-photo active">
+                    <img src="images/1976.jpg" alt="1976年发掘照片" class="timeline-photo">
+                    <img src="images/1979.jpg" alt="1979年开放照片" class="timeline-photo">
+                    <img src="images/申遗.jpg" alt="1987年申遗照片" class="timeline-photo">
+                    <img src="images/1994年.jpg" alt="1994年保护照片" class="timeline-photo">
+                </div>
+                
+                <!-- 历史背景折叠面板 -->
+                <div class="history-content">
+    <p>兵马俑是秦始皇陵的一部分，始建于公元前246年，历时39年建成。这些陶俑原本是彩绘的，代表秦朝军队的不同兵种和等级。</p>
+    
+    <!-- 历史背景视频 -->
+    <div class="history-video">
+        <video controls="" width="100%">
+            <source src="images/512287d38ab3c5b64d8eb0d1f1931339.mp4" type="video/mp4">
+            您的浏览器不支持HTML5视频
+        </video>
+    </div>
+</div>
+                
+                <!-- 发现者采访视频缩略图 -->
+                <div class="video-thumbnail">
+                </div>
+            </div>
+            <div class="">
+                
+            </div>
+            <button class="btn" id="btn-next1">继续探索</button>
+        </div>
+        
+        <!-- 第一幕 -->
+        <div class="scene" id="scene1">
+            <div class="content">
+                <h2>意外的发现</h2>
+                <p>1974年3月，陕西省临潼县西杨村的农民在打井时，意外发现了破碎的陶俑和青铜兵器。这一偶然发现揭开了埋藏地下两千多年的秦始皇陵兵马俑坑的序幕。</p>
+                
+                <!-- 碎片拼接交互组件 -->
+                <div class="puzzle-container">
+    <h3>拼接陶俑碎片</h3>
+    <div class="puzzle-pieces">
+        <img src="images/1.jpg" class="puzzle-piece" draggable="true" data-piece="1">
+        <img src="images/2.jpg" class="puzzle-piece" draggable="true" data-piece="2">
+        <img src="images/3.jpg" class="puzzle-piece" draggable="true" data-piece="3">
+        <img src="images/4.jpg" class="puzzle-piece" draggable="true" data-piece="4">
+    </div>
+    <div class="puzzle-target">
+        <div class="puzzle-slot" data-slot="1"></div>
+        <div class="puzzle-slot" data-slot="2"></div>
+        <div class="puzzle-slot" data-slot="3"></div>
+        <div class="puzzle-slot" data-slot="4"></div>
+    </div>
+</div>
+                
+                <!-- 考古照片画廊 -->
+                <div class="gallery-container">
+                    <h3>考古发掘照片</h3>
+                    <div class="gallery">
+                        <img src="images/fb16a34d55e6d939b740b8e15fceb332.jpg" alt="发掘现场1">
+                        <img src="images/发掘现场2.jpg" alt="发掘现场2">
+                        <img src="images/发掘现场3.jpg" alt="发掘现场3">
+                        <img src="images/发掘现场4.jpg" alt="发掘现场4">
+                    </div>
+                    <div class="gallery-nav">
+                        <button class="gallery-prev">←</button>
+                        <button class="gallery-next">→</button>
+                    </div>
+                </div>
+                
+                <!-- 挖井过程动画 -->
+                <div class="digging-animation">
+                    </div>
+                </div>
+                <div class="svg-container">
+                </div>
+                <button class="btn" id="btn-next2">彩绘揭秘</button>
+            </div>
+        </div>
+
+        
+       <!-- 第二幕 -->
+<div class="scene" id="scene2">
+    <div class="content">  
+        <!-- 新增的兵马俑彩绘交互板块 -->
+        <div class="terracotta-colors">
+            <h3>秦俑彩绘矿物颜料揭秘</h3>
+            <p>点击颜色探索古人调色黑科技：</p>
+            
+            <div class="color-palette">
+                <div class="color-option red" data-name="朱红战袍" data-color="red"></div>
+                <div class="color-option green" data-name="翡翠甲胄" data-color="green"></div>
+                <div class="color-option purple" data-name="中国紫" data-color="purple"></div>
+                <div class="color-option pink" data-name="粉嫩肌肤" data-color="pink"></div>
+                <div class="color-option black" data-name="炭黑线条" data-color="black"></div>
+            </div>
+            
+            <div id="red-details" class="color-details">
+                <h3>朱红战袍</h3>
+                <p>红色颜料来自<span class="highlight">赤铁矿（Fe₂O₃）和朱砂（HgS）</span>，朱砂不仅显色，还能防腐，堪称古代"纳米防晒霜"。</p>
+                <p>古人发现朱砂具有天然的防腐性能，能有效保护陶俑表面不受侵蚀，这种技术比现代防腐技术早了2000多年。</p>
+            </div>
+            
+            <div id="green-details" class="color-details">
+                <h3>翡翠甲胄</h3>
+                <p>绿色用<span class="highlight">孔雀石（CuCO₃·Cu(OH)₂）</span>，蓝色取自<span class="highlight">蓝铜矿（Cu₃(CO₃)₂(OH)₂）</span>，两种矿物混合后呈现深邃的青绿色，阳光下泛着金属光泽。</p>
+                <p>这种混合技术展现了秦代工匠对矿物特性的深刻理解，能根据光线变化调整比例，创造出立体感十足的视觉效果。</p>
+            </div>
+            
+            <div id="purple-details" class="color-details">
+                <h3>神秘中国紫</h3>
+                <p>紫色颜料是秦代独创的<span class="highlight">硅酸铜钡（BaCuSi₂O₆）</span>，全球首次发现！这种人工合成颜料比埃及蓝更稳定，至今未被完全破解制作工艺。</p>
+                <p>科学家推测这种颜料需要在特定温度下（约900°C）长时间煅烧才能形成，展现了秦代高超的化学工艺水平。</p>
+            </div>
+            
+            <div id="pink-details" class="color-details">
+                <h3>粉嫩肌肤</h3>
+                <p>白色基底用<span class="highlight">动物骨灰烧制的骨白（Ca₅(PO₄)₃(OH)）</span>，混合朱砂调出粉红色，还原秦俑"健康小麦色"。</p>
+                <p>这种配方不仅能准确模拟肤色，还具有很好的附着力和耐久性，体现了古人对材料特性的精准把握。</p>
+            </div>
+            
+            <div id="black-details" class="color-details">
+                <h3>炭黑线条</h3>
+                <p>黑色来自<span class="highlight">无定形炭</span>，古人焚烧秸秆或木炭研磨成粉，勾勒出精细的眉毛、胡须，连"双眼皮"都清晰可见。</p>
+                <p>碳黑颜料的颗粒极细，能画出宽度不足1毫米的线条，展现了秦代工匠惊人的绘画技巧。</p>
+            </div>
+            
+            <div class="technique">
+                <h3>古人调色黑科技：矿物如何"听话"上妆？</h3>
+                <p><span class="highlight">生漆打底</span>：陶俑表面涂生漆（漆树汁液），形成防水胶膜，颜料不易脱落。</p>
+                <p>这种多层涂装技术包括：陶坯处理→生漆底涂→矿物颜料层→保护层，每道工序都有严格标准，确保色彩千年不褪。</p>
+            </div>
+        </div>
+        <!-- 彩绘交互板块结束 -->
+    </div>
+    
+    <div class="svg-container">
+    </div>
+    <button class="btn" id="btn-next3">探索工艺</button>
+</div>
+        
+        <!-- 第三幕 -->
+        <div class="scene" id="scene3">
+            <div class="content">
+                <h2>精湛的制作工艺</h2>
+                <p>兵马俑的制作工艺极为复杂，每尊俑都是独立雕塑，先制作躯干，再添加四肢和头部，最后进行精细的面部刻画，使得每个俑都有独特的面貌。</p>
+                
+                <!-- 制作步骤流程图 -->
+                <div class="process-flow">
+                    <h3>制作步骤</h3>
+                    <div class="flow-steps">
+                        <div class="step">
+                            <div class="step-icon">1</div>
+                            <div class="step-content">选择陶土</div>
+                        </div>
+                        <div class="step-arrow">→</div>
+                        <div class="step">
+                            <div class="step-icon">2</div>
+                            <div class="step-content">制作陶泥</div>
+                        </div>
+                        <div class="step-arrow">→</div>
+                        <div class="step">
+                            <div class="step-icon">3</div>
+                            <div class="step-content">分段制作</div>
+                        </div>
+                        <div class="step-arrow">→</div>
+                        <div class="step">
+                            <div class="step-icon">4</div>
+                            <div class="step-content">彩绘装饰</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 兵马俑制作交互动画 -->
+                <div class="terracotta-crafting">
+                    <h3>兵马俑制作工艺体验</h3>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progress"></div>
+                    </div>
+                    
+                    <div class="controls">
+                        <button id="resetBtn">重新开始</button>
+                        <button id="mixBtn" disabled>混合陶土和水</button>
+                        <button id="shapeBtn" disabled>塑造兵马俑</button>
+                    </div>         
+
+                    <div class="workshop">
+                        <div class="mixing-bowl" id="mixingBowl"></div>
+                        <div class="workbench" id="workbench"></div>
+        
+                        <div class="clay" id="clay" title="点击拿起陶土">
+                            <div class="part-label">陶土</div>  
+                        </div>
+                        <div class="water" id="water" title="点击拿起水">
+                            <div class="part-label">水</div>
+                        </div>
+                        <div class="mixed-clay" id="mixedClay" title="点击拿起混合好的陶土">
+                            <div class="part-label">混合陶土</div>
+                        </div>
+
+                        <div class="terracotta" id="terracotta">
+                            <div class="head">
+                                <div class="part-label">头部</div>
+                            </div>
+                            <div class="body">
+                                <div class="part-label">躯干</div>
+                                
+                                <!-- 连接点 -->
+                                <div class="attachment-point" id="leftArmPoint"></div>
+                                <div class="attachment-point" id="rightArmPoint"></div>
+                                <div class="attachment-point" id="leftLegPoint"></div>
+                                <div class="attachment-point" id="rightLegPoint"></div>
+                            </div>
+                        </div>
+        
+                        <!--  -->
+                        <div class="arm left" id="leftArm">
+                            <div class="part-label">左臂</div>
+                        </div>
+                        <div class="arm right" id="rightArm">
+                            <div class="part-label">右臂</div>
+                        </div>
+                        <div class="leg left" id="leftLeg">
+                            <div class="part-label">左腿</div>
+                        </div>
+                        <div class="leg right" id="rightLeg">
+                            <div class="part-label">右腿</div>
+                        </div>
+                    </div>
+    
+                    <div class="success-message" id="successMessage">
+                        <h2>恭喜！</h2>
+                        <p>您成功制作了一个完整的兵马俑！</p>
+                        <p>古代工匠们就是这样用他们的智慧和双手创造了这些震撼世界的艺术品。</p>
+                        <button class="close-message" id="closeMessage">关闭</button>
+                    </div>
+                </div>
+                <!-- 材料来源地图 -->
+                <div class="material-map">
+    <h3>材料来源</h3>
+    <div class="map-container">
+        <img src="images/地图.jpg" alt="中国地图">
+        <div class="map-marker" style="top:50%;left:30%" onclick="showMaterialInfo('clay')">
+            <div class="marker-dot"></div>
+            <div class="marker-label">黏土</div>
+        </div>
+        <div class="map-marker" style="top:40%;left:55%" onclick="showMaterialInfo('pigment')">
+            <div class="marker-dot"></div>
+            <div class="marker-label">矿物颜料</div>
+        </div>
+    </div>
+    
+    <!-- 新增的信息弹窗 -->
+    <div id="material-info-modal" class="material-info-modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeMaterialInfo()">&times;</span>
+            <div id="material-info-content"></div>
+        </div>
+    </div>
+</div>
+                
+                    
+                </svg>
+            </div>
+            <button class="btn" id="btn-next4">了解意义</button>
+        </div>
+        
+        <!-- 终幕 -->
+        <div class="scene" id="finale">
+            <div class="content">
+                <h2>历史意义与现代保护</h2>
+                <p>兵马俑不仅是中国古代雕塑艺术的巅峰之作，更是研究秦代军事、政治、经济、文化的珍贵实物资料。如今，文物保护工作者正在使用现代科技手段保护这一珍贵文化遗产。</p>
+                <div class="interactive-protection">
+            <div class="terracotta-army" id="mainImage">
+                <!-- 交互热点 -->
+                <div class="hotspot" style="top: 40%; left: 30%;" data-panel="history">1</div>
+                <div class="hotspot" style="top: 50%; left: 60%;" data-panel="discovery">2</div>
+                <div class="hotspot" style="top: 70%; left: 45%;" data-panel="protection">3</div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn" data-panel="history">历史意义</button>
+                <button class="btn" data-panel="discovery">考古发现</button>
+                <button class="btn" data-panel="protection">现代保护</button>
+                <button class="btn" data-panel="reset">重置</button>
+            </div>
+            
+            <div class="info-panel" id="history">
+                <h3>历史意义</h3>
+                <p>兵马俑是秦始皇陵的一部分，建于公元前246年至公元前208年，是秦始皇统一中国后为展示其权力和军事力量而建造的。</p>
+                <p>这些陶俑代表了秦朝军队的真实规模和组织结构，每个俑的面部特征和服饰细节都独一无二，反映了当时高超的工艺水平。</p>
+                <p>兵马俑的发现为我们了解秦朝军事、文化和社会制度提供了宝贵的实物资料。</p>
+            </div>
+            
+            <div class="info-panel" id="discovery">
+                <h3>考古发现</h3>
+                <p>1974年3月，陕西临潼县农民在打井时意外发现了兵马俑，这一发现被誉为"20世纪最伟大的考古发现"之一。</p>
+                <p>目前已发现三个主要坑道，包含约8,000个陶俑、130辆战车和670匹陶马，构成了一个庞大的地下军阵。</p>
+                <p>考古工作至今仍在继续，新的发现不断刷新我们对秦朝的认识。</p>
+            </div>
+            
+            <div class="info-panel" id="protection">
+                <h3>现代保护</h3>
+                <p>兵马俑出土后面临着严重的保护挑战，包括彩绘脱落、陶质劣化等问题。</p>
+                <p>现代保护技术包括：</p>
+                <ul>
+                    <li>环境控制：保持恒温恒湿的展示环境</li>
+                    <li>材料加固：使用先进材料加固脆弱部位</li>
+                    <li>数字存档：3D扫描记录每个俑的详细信息</li>
+                    <li>限制参观：控制游客数量减少环境影响</li>
+                </ul>
+                <p>1987年，兵马俑被联合国教科文组织列入世界文化遗产名录。</p>
+            </div>
+        </div>
+                <!-- 文明对比时间轴 -->
+               
+            </div>
+            <div class="svg-container">
+                <svg id="scene5-svg" width="100%" height="100%" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid meet">
+                    <!-- 背景 -->
+                    <rect x="0" y="0" width="800" height="400" fill="#e6d5b8" />
+                    
+                    <!-- 左侧: 历史意义 -->
+                    <g id="history">
+                        <rect x="50" y="100" width="300" height="200" fill="#f8f1e0" rx="10" />
+                        <text x="200" y="130" font-size="20" text-anchor="middle" fill="#5a3921"></text>
+                        
+                        <!-- 图标1: 书籍 -->
+                        <rect x="100" y="160" width="40" height="50" fill="#8b4513" rx="3" />
+                        <line x1="100" y1="175" x2="140" y2="175" stroke="#f8f1e0" stroke-width="2" />
+                        <line x1="100" y1="190" x2="140" y2="190" stroke="#f8f1e0" stroke-width="2" />
+                        <line x1="100" y1="205" x2="140" y2="205" stroke="#f8f1e0" stroke-width="2" />
+                        
+                        <!-- 图标2: 军事 -->
+                        <rect x="170" y="160" width="40" height="50" fill="#5a3921" />
+                        <rect x="175" y="165" width="30" height="15" fill="#8b4513" />
+                        <rect x="175" y="185" width="30" height="15" fill="#8b4513" />
+                        <rect x="175" y="205" width="30" height="5" fill="#8b4513" />
+                        
+                        <!-- 图标3: 艺术 -->
+                        <rect x="240" y="160" width="40" height="50" fill="#5a3921" rx="20" />
+                        <path d="M240,180 Q260,160 280,180 T240,220" stroke="#f8f1e0" stroke-width="3" fill="none" />
+                        
+                        <text x="105" y="250" font-size="20" text-anchor="middle">历史研究</text>
+                        <text x="190" y="250" font-size="20" text-anchor="middle">军事编制</text>
+                        <text x="280" y="250" font-size="20" text-anchor="middle">雕塑艺术</text>
+                    </g>
+                    
+                    <!-- 右侧: 现代保护 -->
+                    <g id="protection">
+                        <rect x="450" y="100" width="300" height="200" fill="#f8f1e0" rx="10" />
+                        <text x="600" y="130" font-size="50" text-anchor="middle" fill="#5a3921"></text>
+                        
+                        <!-- 图标1: 3D扫描 -->
+                        <circle cx="500" cy="185" r="25" fill="#5a3921" />
+                        <path d="M500,160 L500,170 M490,175 L510,175 M495,190 L505,190" stroke="#f8f1e0" stroke-width="3" />
+                        
+                        <!-- 图标2: 修复 -->
+                        <circle cx="600" cy="185" r="25" fill="#8b4513" />
+                        <path d="M590,175 L610,195 M590,195 L610,175" stroke="#f8f1e0" stroke-width="3" />
+                        
+                        <!-- 图标3: 监测 -->
+                        <circle cx="700" cy="185" r="25" fill="#5a3921" />
+                        <path d="M700,160 L700,195 M685,175 L715,175" stroke="#f8f1e0" stroke-width="3" />
+                        <circle cx="700" cy="175" r="3" fill="#f8f1e0" />
+                        
+                        <text x="500" y="250" font-size="20" text-anchor="middle">3D数字化</text>
+                        <text x="600" y="250" font-size="20" text-anchor="middle">修复技术</text>
+                        <text x="700" y="250" font-size="20" text-anchor="middle">环境监测</text>
+                    </g>
+                    
+                    <!-- 底部: 博物馆建筑 -->
+                    <rect x="300" y="300" width="200" height="50" fill="#8c6141" />
+                    <rect x="350" y="250" width="100" height="50" fill="#a67c52" />
+                    <text x="190" y="315" font-size="35" text-anchor="middle" fill="black">人文社会科学</text>
+                    <text x="600" y="315" font-size="35" text-anchor="middle" fill="black">文化遗产保护利用</text>
+                </svg>
+            </div>
+            <button class="btn" id="btn-restart">重新开始</button>
+        </div>
+    </div>
+    
+    <!-- 导航点 -->
+    <div class="navigation">
+        <div class="nav-dot active" data-target="prologue"></div>
+        <div class="nav-dot" data-target="scene1"></div>
+        <div class="nav-dot" data-target="scene2"></div>
+        <div class="nav-dot" data-target="scene3"></div>
+        <div class="nav-dot" data-target="finale"></div>
+    </div>
+    
+    <!-- 工具提示 -->
+    <div class="tooltip" id="tooltip"></div>
+    
+    <!-- 引入GSAP库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+    
+    <script>
+       document.addEventListener('DOMContentLoaded', function() { 
+    const puzzlePieces = document.querySelectorAll('.puzzle-piece'); 
+    const puzzleSlots = document.querySelectorAll('.puzzle-slot'); 
+    let currentSlot = 1; 
+ 
+    // 移除原有的拖拽事件监听器
+    // 改为点击事件
+    puzzlePieces.forEach(piece => {
+        piece.addEventListener('click', function() {
+            const pieceNumber = this.dataset.piece;
+            const targetSlot = document.querySelector(`.puzzle-slot[data-slot="${pieceNumber}"]`);
+            
+            // 检查是否按顺序放置
+            if (parseInt(pieceNumber) === currentSlot) {
+                // 创建图片副本并动画移动到目标位置
+                const imgClone = this.cloneNode();
+                imgClone.style.position = 'absolute';
+                imgClone.style.left = this.getBoundingClientRect().left + 'px';
+                imgClone.style.top = this.getBoundingClientRect().top + 'px';
+                imgClone.style.width = this.offsetWidth + 'px';
+                imgClone.style.height = this.offsetHeight + 'px';
+                imgClone.style.transition = 'all 0.5s ease';
+                imgClone.style.zIndex = '100';
+                document.body.appendChild(imgClone);
+                
+                // 计算目标位置
+                const targetRect = targetSlot.getBoundingClientRect();
+                const targetLeft = targetRect.left + (targetRect.width - imgClone.offsetWidth)/2;
+                const targetTop = targetRect.top + (targetRect.height - imgClone.offsetHeight)/2;
+                
+                // 触发动画
+                setTimeout(() => {
+                    imgClone.style.left = targetLeft + 'px';
+                    imgClone.style.top = targetTop + 'px';
+                    imgClone.style.width = targetRect.width + 'px';
+                    imgClone.style.height = targetRect.height + 'px';
+                }, 10);
+                
+                // 动画完成后更新目标槽位
+                setTimeout(() => {
+                    targetSlot.innerHTML = `<img src="${this.src}" style="width:100%;height:100%;object-fit:contain;">`;
+                    document.body.removeChild(imgClone);
+                    currentSlot++; 
+                    
+                    // 检查是否完成拼接 
+                    if (currentSlot > 4) { 
+                        alert('恭喜！陶俑碎片拼接完成！'); 
+                    } 
+                }, 510);
+            } else { 
+                alert('请按顺序拼接碎片！'); 
+            } 
+        });
+    });
+            
+            // 考古照片画廊功能
+            const gallery = document.querySelector('.gallery');
+            const galleryPrev = document.querySelector('.gallery-prev');
+            const galleryNext = document.querySelector('.gallery-next');
+            let currentGalleryIndex = 0;
+            
+            galleryPrev.addEventListener('click', function() {
+                currentGalleryIndex = (currentGalleryIndex - 1 + gallery.children.length) % gallery.children.length;
+                updateGallery();
+            });
+            
+            galleryNext.addEventListener('click', function() {
+                currentGalleryIndex = (currentGalleryIndex + 1) % gallery.children.length;
+                updateGallery();
+            });
+            
+            function updateGallery() {
+                gallery.style.transform = `translateX(-${currentGalleryIndex * 100}%)`;
+            }
+            
+            // 视频缩略图交互
+            const videoThumbnail = document.querySelector('.video-thumbnail');
+            if(videoThumbnail) {
+                videoThumbnail.addEventListener('click', function() {
+                    alert('视频播放功能将在后续实现');
+                });
+            }
+            // 交互式保护展示功能
+    const panels = document.querySelectorAll('.info-panel');
+    const buttons = document.querySelectorAll('.interactive-protection .btn');
+    const hotspots = document.querySelectorAll('.hotspot');
+    const mainImage = document.querySelector('.terracotta-army');
+    
+    // 初始状态 - 隐藏所有面板
+    resetAll();
+    
+    // 按钮点击事件
+    buttons.forEach(button => {
+        button.addEventListener('click', function() {
+            const panelId = this.getAttribute('data-panel');
+            
+            if (panelId === 'reset') {
+                resetAll();
+                return;
+            }
+            
+            showPanel(panelId);
+        });
+    });
+    
+    // 热点点击事件
+    hotspots.forEach(hotspot => {
+        hotspot.addEventListener('click', function() {
+            const panelId = this.getAttribute('data-panel');
+            showPanel(panelId);
+        });
+    });
+    
+    // 显示指定面板
+    function showPanel(panelId) {
+        resetAll();
+        document.getElementById(panelId).style.display = 'block';
+        
+        // 主图动画
+        mainImage.style.filter = 'brightness(0.7)';
+        mainImage.style.transition = 'filter 0.5s ease';
+    }
+    
+    // 重置所有状态
+    function resetAll() {
+        panels.forEach(panel => {
+            panel.style.display = 'none';
+        });
+        mainImage.style.filter = 'brightness(1)';
+    }
+
+            // 初始化场景
+            const scenes = document.querySelectorAll('.scene');
+            const navDots = document.querySelectorAll('.nav-dot');
+            const tooltip = document.getElementById('tooltip');
+            
+            // 默认显示第一个场景
+            scenes[0].classList.add('active');
+            
+            // 导航点点击事件
+            navDots.forEach(dot => {
+                dot.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    navigateToScene(targetId);
+                });
+            });
+            
+            // 按钮点击事件
+            document.getElementById('btn-next1').addEventListener('click', () => navigateToScene('scene1'));
+            document.getElementById('btn-next2').addEventListener('click', () => navigateToScene('scene2'));
+            document.getElementById('btn-next3').addEventListener('click', () => navigateToScene('scene3'));
+            document.getElementById('btn-next4').addEventListener('click', () => navigateToScene('finale'));
+            document.getElementById('btn-restart').addEventListener('click', () => navigateToScene('prologue'));
+            
+            // 时间轴原点点击事件
+            document.querySelectorAll('.timeline-dot').forEach(dot => {
+                dot.addEventListener('click', function() {
+                    const year = this.getAttribute('data-year');
+                    const photos = document.querySelectorAll('.timeline-photo');
+                    
+                    // 移除所有照片的active类
+                    photos.forEach(photo => photo.classList.remove('active'));
+                    
+                    // 根据年份激活对应的照片
+                    switch(year) {
+                        case '1974':
+                            photos[0].classList.add('active');
+                            break;
+                        case '1976':
+                            photos[1].classList.add('active');
+                            break;
+                        case '1979':
+                            photos[2].classList.add('active');
+                            break;
+                        case '1987':
+                            photos[3].classList.add('active');
+                            break;
+                        case '1994':
+                            photos[4].classList.add('active');
+                            break;
+                    }
+                });
+            });
+            
+            // 导航到指定场景
+            function navigateToScene(targetId) {
+                // 隐藏所有场景
+                scenes.forEach(scene => {
+                    scene.classList.remove('active');
+                });
+                
+                // 显示目标场景
+                document.getElementById(targetId).classList.add('active');
+                
+                // 更新导航点状态
+                navDots.forEach(dot => {
+                    dot.classList.remove('active');
+                    if (dot.getAttribute('data-target') === targetId) {
+                        dot.classList.add('active');
+                    }
+                });
+                
+                // 滚动到目标场景
+                document.getElementById(targetId).scrollIntoView({
+                    behavior: 'smooth'
+                });
+                
+                // 根据目标场景触发相应动画
+                switch(targetId) {
+                    case 'prologue':
+                        playPrologueAnimation();
+                        break;
+                    case 'scene1':
+                        playScene1Animation();
+                        break;
+                    case 'scene2':
+                        playScene2Animation();
+                        break;
+                    case 'scene3':
+                        playScene3Animation();
+                        break;
+                    case 'finale':
+                        playFinaleAnimation();
+                        break;
+                }
+            }
+            
+            // 序幕动画
+            function playPrologueAnimation() {
+                gsap.fromTo("#terracotta-army", 
+                    { opacity: 0, y: 50 },
+                    { opacity: 1, y: 0, duration: 1.5, ease: "power2.out" }
+                );
+                
+                gsap.fromTo("#scene1-svg text", 
+                    { opacity: 0 },
+                    { opacity: 1, duration: 1, stagger: 0.3 }
+                );
+            }
+            
+            // 第一幕动画
+            function playScene1Animation() {
+                // 农民锄地动画
+                gsap.to("#farmer", {
+                    x: 200,
+                    duration: 2,
+                    ease: "none",
+                    repeat: 1,
+                    yoyo: true
+                });
+                
+                // 发现碎片动画
+                gsap.to("#fragments", {
+                    opacity: 1,
+                    duration: 1,
+                    delay: 2,
+                    onComplete: function() {
+                        // 碎片轻微晃动
+                        gsap.to("#fragments", {
+                            rotation: 5,
+                            duration: 0.5,
+                            yoyo: true,
+                            repeat: 1
+                        });
+                    }
+                });
+            }
+            
+            // 第二幕动画 - 兵种展示
+function playScene2Animation() {
+    // 计算均匀分布的位置 
+    const svgWidth = 800; // SVG的viewBox宽度 
+    const figureCount = 4; // 兵俑数量 
+    const spacing = svgWidth / (figureCount + 1); // 间距 
+    const centerY = 250; // 垂直居中位置
+    
+    // 初始状态 - 水平排列
+    gsap.set("#general", { x: spacing * 1 - 200, y: centerY, opacity: 0 });
+    gsap.set("#archer", { x: spacing * 2 - 200, y: centerY, opacity: 0 });
+    gsap.set("#cavalry", { x: spacing * 3 - 200, y: centerY, opacity: 0 });
+    gsap.set("#infantry", { x: spacing * 4 - 200, y: centerY, opacity: 0 });
+    
+    // 入场动画
+    gsap.to("#general", { x: spacing * 1 - 200, y: centerY, opacity: 1, duration: 1, ease: "back.out(1.7)" });
+    gsap.to("#archer", { x: spacing * 2 - 200, y: centerY, opacity: 1, duration: 1, ease: "back.out(1.7)", delay: 0.3 });
+    gsap.to("#cavalry", { x: spacing * 3 - 200, y: centerY, opacity: 1, duration: 1, ease: "back.out(1.7)", delay: 0.6 });
+    gsap.to("#infantry", { x: spacing * 4 - 200, y: centerY, opacity: 1, duration: 1, ease: "back.out(1.7)", delay: 0.9 });
+    
+    // 添加交互功能
+    const figures = document.querySelectorAll('.terracotta-figure');
+    const tooltipTexts = {
+        'general': '将军俑：高级指挥官，头戴鹖冠，身穿鱼鳞甲',
+        'archer': '跪射俑：弓箭手，单膝跪地，准备射击姿势',
+        'cavalry': '骑兵俑：配备战马，轻装便于马上作战',
+        'infantry': '武士俑：普通士兵，手持各种兵器'
+    };
+    
+    // 添加点击动画效果
+    figures.forEach(figure => {
+        figure.addEventListener('click', function(e) {
+            // 点击时放大并轻微弹跳
+            gsap.to(e.currentTarget, {
+                scale: 1.2,
+                duration: 0.3,
+                yoyo: true,
+                repeat: 1,
+                ease: "elastic.out(1, 0.5)"
+            });
+            
+            // 显示详细信息卡片
+            const infoCard = document.createElement('div');
+            infoCard.className = 'info-card';
+            infoCard.innerHTML = `<h3>${tooltipTexts[e.currentTarget.id].split('：')[0]}</h3>
+                                <p>${tooltipTexts[e.currentTarget.id].split('：')[1]}</p>`;
+            document.body.appendChild(infoCard);
+            
+            // 卡片动画
+            gsap.from(infoCard, {
+                y: 50,
+                opacity: 0,
+                duration: 0.5
+            });
+            
+            // 3秒后自动消失
+            setTimeout(() => {
+                gsap.to(infoCard, {
+                    y: -50,
+                    opacity: 0,
+                    duration: 0.5,
+                    onComplete: () => infoCard.remove()
+                });
+            }, 3000);
+        });
+        
+        // 原有悬停效果保持不变
+        figure.addEventListener('mouseenter', function(e) {
+            const id = e.currentTarget.id;
+            tooltip.textContent = tooltipTexts[id];
+            tooltip.style.left = (e.pageX + 10) + 'px';
+            tooltip.style.top = (e.pageY + 10) + 'px';
+            tooltip.style.opacity = 1;
+            
+            // 轻微放大效果
+            gsap.to(e.currentTarget, {
+                scale: 1.05,
+                duration: 0.3
+            });
+        });
+        
+        figure.addEventListener('mouseleave', function(e) {
+            tooltip.style.opacity = 0;
+            
+            // 恢复原大小
+            gsap.to(e.currentTarget, {
+                scale: 1,
+                duration: 0.3
+            });
+        });
+        
+        figure.addEventListener('mousemove', function(e) {
+            tooltip.style.left = (e.pageX + 10) + 'px';
+            tooltip.style.top = (e.pageY + 10) + 'px';
+        });
+    });
+}
+            
+            // 第三幕动画 - 制作工艺
+            function playScene3Animation() {
+                // 重置状态
+                gsap.set("#step1, #step2, #step3, #step4", { opacity: 0.5 });
+                
+                // 播放按钮动画
+                gsap.fromTo("#play-process", 
+                    { scale: 0.8 },
+                    { scale: 1.1, duration: 1, repeat: -1, yoyo: true }
+                );
+                
+                // 点击播放制作流程
+                document.getElementById('play-process').addEventListener('click', function() {
+                    // 重置所有步骤
+                    gsap.set("#step1, #step2, #step3, #step4", { opacity: 0.5 });
+                    
+                    // 步骤动画序列
+                    const tl = gsap.timeline();
+                    
+                    tl.to("#step1", { opacity: 1, duration: 0.5 })
+                      .to("#step1", { opacity: 0.5, duration: 0.5, delay: 1 })
+                      .to("#step2", { opacity: 1, duration: 0.5 })
+                      .to("#step2", { opacity: 0.5, duration: 0.5, delay: 1 })
+                      .to("#step3", { opacity: 1, duration: 0.5 })
+                      .to("#step3", { opacity: 0.5, duration: 0.5, delay: 1 })
+                      .to("#step4", { opacity: 1, duration: 0.5 })
+                      .to("#step4", { opacity: 0.5, duration: 0.5, delay: 1 });
+                });
+            }
+            
+            // 终幕动画
+            function playFinaleAnimation() {
+                // 历史意义部分动画
+                gsap.from("#history rect", {
+                    y: 50,
+                    opacity: 0,
+                    duration: 1,
+                    stagger: 0.2
+                });
+                
+                // 现代保护部分动画
+                gsap.from("#protection rect", {
+                    y: 50,
+                    opacity: 0,
+                    duration: 1,
+                    stagger: 0.2,
+                    delay: 0.5
+                });
+                
+                // 图标动画
+                gsap.from("#history circle, #history rect", {
+                    scale: 0,
+                    duration: 1,
+                    stagger: 0.1,
+                    delay: 1,
+                    ease: "elastic.out(1, 0.5)"
+                });
+                
+                gsap.from("#protection circle", {
+                    scale: 0,
+                    duration: 1,
+                    stagger: 0.1,
+                    delay: 1.5,
+                    ease: "elastic.out(1, 0.5)"
+                });
+            }
+            document.querySelectorAll('.color-option').forEach(option => {
+    option.addEventListener('click', function() {
+        const color = this.getAttribute('data-color');
+        showColorDetails(color);
+    });
+});
+            // 初始化第一个场景的动画
+            playPrologueAnimation();
+            
+            // 已移除滚动触发功能，仅保留按钮点击导航
+        });
+        // 兵马俑制作交互功能
+// 兵马俑制作交互功能
+(function() {
+    // 获取DOM元素
+    const clay = document.getElementById('clay');
+    const water = document.getElementById('water');
+    const mixingBowl = document.getElementById('mixingBowl');
+    const mixedClay = document.getElementById('mixedClay');
+    const workbench = document.getElementById('workbench');
+    const terracotta = document.getElementById('terracotta');
+    const mixBtn = document.getElementById('mixBtn');
+    const shapeBtn = document.getElementById('shapeBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const progressBar = document.getElementById('progress');
+    const leftArm = document.getElementById('leftArm');
+    const rightArm = document.getElementById('rightArm');
+    const leftLeg = document.getElementById('leftLeg');
+    const rightLeg = document.getElementById('rightLeg');
+    const leftArmPoint = document.getElementById('leftArmPoint');
+    const rightArmPoint = document.getElementById('rightArmPoint');
+    const leftLegPoint = document.getElementById('leftLegPoint');
+    const rightLegPoint = document.getElementById('rightLegPoint');
+    const successMessage = document.getElementById('successMessage');
+    const closeMessage = document.getElementById('closeMessage');
+    
+    // 状态变量
+    let clayInBowl = false;
+    let waterInBowl = false;
+    let mixed = false;
+    let shaped = false;
+    let completed = false;
+    
+    // 正确位置
+    const correctPositions = {
+        leftArm: { 
+        x: 120 - 15,  // 躯干左侧减去手臂宽度的一半
+        y: 120 + 60,  // 躯干顶部加上约一半高度
+        rotation: 0 
+    },
+    rightArm: { 
+        x: 150 + 80 + 15, // 躯干右侧加上手臂宽度的一半
+        y: 120 + 60, 
+        rotation: 0 
+    },
+    leftLeg: { 
+        x: 150 + 20,      // 躯干左下方
+        y: 120 + 130 - 10, // 躯干底部稍上方
+        rotation: 0 
+    },
+    rightLeg: { 
+        x: 150 + 20,      // 躯干右下方
+        y: 120 + 130 - 10, 
+        rotation: 0 
+    }
+};
+    
+    // 陶土点击事件
+    clay.addEventListener('click', function() {
+        if (!clayInBowl) {
+            // 显示混合碗
+            mixingBowl.style.display = 'block';
+            
+            // 动画效果
+            clay.style.left = '130px';
+            clay.style.top = '130px';
+            clay.style.transform = 'scale(0.8)';
+            clayInBowl = true;
+            
+            // 更新混合按钮状态
+            updateMixButton();
+            
+            // 更新进度
+            updateProgress();
+        }
+    });
+    
+    // 水点击事件
+    water.addEventListener('click', function() {
+        if (!waterInBowl) {
+            // 显示混合碗
+            mixingBowl.style.display = 'block';
+            
+            // 动画效果
+            water.style.left = '170px';
+            water.style.top = '140px';
+            water.style.transform = 'scale(0.8)';
+            waterInBowl = true;
+            
+            // 更新混合按钮状态
+            updateMixButton();
+            
+            // 更新进度
+            updateProgress();
+        }
+    });
+    
+    // 更新混合按钮状态
+    function updateMixButton() {
+        if (clayInBowl && waterInBowl && !mixed) {
+            mixBtn.disabled = false;
+        }
+    }
+    
+    // 混合按钮点击事件
+    mixBtn.addEventListener('click', function() {
+        if (clayInBowl && waterInBowl && !mixed) {
+            // 动画效果
+            clay.style.transform = 'scale(0)';
+            water.style.transform = 'scale(0)';
+            
+            // 延迟显示混合陶土
+            setTimeout(() => {
+                clay.style.display = 'none';
+                water.style.display = 'none';
+                
+                // 显示混合陶土
+                mixedClay.style.display = 'block';
+                mixed = true;
+                
+                // 启用塑造按钮
+                shapeBtn.disabled = false;
+                
+                // 更新进度
+                updateProgress();
+            }, 500);
+        }
+    });
+    
+    // 混合陶土点击事件
+    mixedClay.addEventListener('click', function() {
+        if (mixed && !shaped) {
+            // 显示工作台
+            workbench.style.display = 'block';
+            
+            // 动画效果
+            mixedClay.style.left = '150px';
+            mixedClay.style.top = '150px';
+            mixedClay.style.transform = 'scale(0.8)';
+            
+            // 更新进度
+            updateProgress();
+        }
+    });
+    
+    // 塑造按钮点击事件
+    shapeBtn.addEventListener('click', function() {
+        if (mixed && !shaped) {
+            // 动画效果：混合陶土消失
+            mixedClay.style.transform = 'scale(0)';
+            
+            // 工作台和混合碗淡出
+            mixingBowl.classList.add('fade-out');
+            workbench.classList.add('fade-out');
+            
+            setTimeout(() => {
+                // 隐藏混合陶土、工作台和混合碗
+                mixedClay.style.display = 'none';
+                mixingBowl.style.display = 'none';
+                workbench.style.display = 'none';
+                
+                // 显示兵马俑躯干和头部
+                terracotta.style.display = 'block';
+                shaped = true;
+                
+                // 显示并打乱四肢位置
+                showAndScatterLimbs();
+                
+                // 设置四肢点击事件
+                setupClickableLimbs();
+                
+                // 更新进度
+                updateProgress();
+            }, 500);
+        }
+    });
+    
+    // 显示并打乱四肢位置
+    function showAndScatterLimbs() {
+        // 随机位置函数
+        function getRandomPosition(minX, maxX, minY, maxY) {
+            return {
+                x: Math.floor(Math.random() * (maxX - minX)) + minX,
+                y: Math.floor(Math.random() * (maxY - minY)) + minY
+            };
+        }
+        
+        // 显示四肢
+        leftArm.style.display = 'block';
+        rightArm.style.display = 'block';
+        leftLeg.style.display = 'block';
+        rightLeg.style.display = 'block';
+        
+        // 设置随机位置
+        const leftArmPos = getRandomPosition(50, 150, 50, 100);
+        leftArm.style.left = leftArmPos.x + 'px';
+        leftArm.style.top = leftArmPos.y + 'px';
+        leftArm.style.transform = 'rotate(' + (Math.random() * 180 - 90) + 'deg)';
+        
+        const rightArmPos = getRandomPosition(200, 300, 50, 100);
+        rightArm.style.left = rightArmPos.x + 'px';
+        rightArm.style.top = rightArmPos.y + 'px';
+        rightArm.style.transform = 'rotate(' + (Math.random() * 180 - 90) + 'deg)';
+        
+        const leftLegPos = getRandomPosition(100, 200, 200, 300);
+        leftLeg.style.left = leftLegPos.x + 'px';
+        leftLeg.style.top = leftLegPos.y + 'px';
+        leftLeg.style.transform = 'rotate(' + (Math.random() * 60 - 30) + 'deg)';
+        
+        const rightLegPos = getRandomPosition(200, 300, 200, 300);
+        rightLeg.style.left = rightLegPos.x + 'px';
+        rightLeg.style.top = rightLegPos.y + 'px';
+        rightLeg.style.transform = 'rotate(' + (Math.random() * 60 - 30) + 'deg)';
+    }
+    
+    // 设置可点击的四肢
+    function setupClickableLimbs() {
+        // 移除之前的拖动事件
+        leftArm.onmousedown = null;
+        rightArm.onmousedown = null;
+        leftLeg.onmousedown = null;
+        rightLeg.onmousedown = null;
+        
+        // 添加点击事件
+        leftArm.addEventListener('click', function() {
+            moveLimbToPosition(leftArm, 'leftArm');
+        });
+        
+        rightArm.addEventListener('click', function() {
+            moveLimbToPosition(rightArm, 'rightArm');
+        });
+        
+        leftLeg.addEventListener('click', function() {
+            moveLimbToPosition(leftLeg, 'leftLeg');
+        });
+        
+        rightLeg.addEventListener('click', function() {
+            moveLimbToPosition(rightLeg, 'rightLeg');
+        });
+    }
+    
+    // 移动肢体到正确位置
+    function moveLimbToPosition(limb, partName) {
+        // 如果已经放置正确，则不做任何操作
+        if (limb.dataset.correct === 'true') return;
+        
+        const correctPos = correctPositions[partName];
+        
+        // 动画效果
+        limb.style.transition = 'all 0.5s ease-out';
+        limb.style.left = (correctPos.x - parseInt(limb.style.width) / 2) + 'px';
+        limb.style.top = (correctPos.y - parseInt(limb.style.height) / 2) + 'px';
+        limb.style.transform = `rotate(${correctPos.rotation}deg)`;
+        limb.style.zIndex = '10';
+        
+        // 标记为已放置正确
+        limb.dataset.correct = 'true';
+        
+        // 移除过渡效果，防止后续点击受影响
+        setTimeout(() => {
+            limb.style.transition = 'none';
+            limb.style.zIndex = '1';
+        }, 500);
+        
+        // 检查是否完成
+        checkCompletion();
+    }
+    
+    // 检查是否完成组装
+    function checkCompletion() {
+        const parts = [leftArm, rightArm, leftLeg, rightLeg];
+        const allCorrect = parts.every(part => part.dataset.correct === 'true');
+        
+        if (allCorrect && !completed) {
+            completed = true;
+            
+            // 显示成功消息
+            setTimeout(() => {
+                successMessage.style.display = 'block';
+            }, 1000);
+            
+            // 更新进度
+            updateProgress();
+        }
+    }
+    
+    // 重置四肢位置
+    function resetLimbs() {
+        // 隐藏四肢
+        leftArm.style.display = 'none';
+        rightArm.style.display = 'none';
+        leftLeg.style.display = 'none';
+        rightLeg.style.display = 'none';
+        
+        // 重置标记
+        leftArm.dataset.correct = 'false';
+        rightArm.dataset.correct = 'false';
+        leftLeg.dataset.correct = 'false';
+        rightLeg.dataset.correct = 'false';
+        
+        // 重置工作台和混合碗
+        mixingBowl.style.display = 'none';
+        mixingBowl.classList.remove('fade-out');
+        workbench.style.display = 'none';
+        workbench.classList.remove('fade-out');
+    }
+    
+    // 更新进度条
+    function updateProgress() {
+        let progress = 0;
+        
+        if (clayInBowl && waterInBowl) progress += 20;
+        if (mixed) progress += 20;
+        if (mixedClay.style.left === '150px' && mixedClay.style.top === '150px') progress += 20;
+        if (shaped) progress += 20;
+        if (completed) progress += 20;
+        
+        progressBar.style.width = progress + '%';
+    }
+    
+    // 关闭成功消息
+    closeMessage.addEventListener('click', function() {
+        successMessage.style.display = 'none';
+    });
+    
+    // 重置按钮点击事件
+    resetBtn.addEventListener('click', function() {
+        // 重置位置和显示
+        clay.style.display = 'block';
+        clay.style.left = '30px';
+        clay.style.top = '160px';
+        clay.style.transform = 'scale(1)';
+        
+        water.style.display = 'block';
+        water.style.left = '150px';
+        water.style.top = '170px';
+        water.style.transform = 'scale(1)';
+        
+        mixedClay.style.display = 'none';
+        mixedClay.style.left = '350px';
+        mixedClay.style.top = '150px';
+        mixedClay.style.transform = 'scale(1)';
+        
+        terracotta.style.display = 'none';
+        
+        // 重置状态
+        clayInBowl = false;
+        waterInBowl = false;
+        mixed = false;
+        shaped = false;
+        completed = false;
+        
+        // 重置按钮状态
+        mixBtn.disabled = true;
+        shapeBtn.disabled = true;
+        
+        // 重置进度条
+        progressBar.style.width = '0%';
+        
+        // 隐藏成功消息
+        successMessage.style.display = 'none';
+        
+        // 重置四肢
+        resetLimbs();
+    });
+    
+    // 初始化：隐藏四肢
+    resetLimbs();
+})();
+
+// 默认显示红色详情
+function showMaterialInfo(type) {
+        const modal = document.getElementById('material-info-modal');
+        const content = document.getElementById('material-info-content');
+        
+        if(type === 'pigment') {
+            content.innerHTML = `
+                <h3>矿物颜料来源</h3>
+                <p><strong>蓝色颜料蓝铜矿：</strong>古代时陕西就是蓝铜矿的产地，此外，我国广东阳春和湖北大冶也是著名产地。国外的俄罗斯、美国、澳大利亚、法国、墨西哥、摩洛哥等国家也有蓝铜矿产出。</p>
+                <p><strong>绿色颜料孔雀石：</strong>陕西同样是孔雀石的产地之一，湖北大冶等地也有产出，因为孔雀石和蓝铜矿常常共生。</p>
+                <p><strong>红色颜料朱砂：</strong>我国贵州、湖南、四川等地是朱砂的重要产地。虽然没有明确记载表明兵马俑的朱砂颜料具体来自哪里，但这些地区在古代就是朱砂的主要产区，有很大可能为兵马俑提供了红色颜料。</p>
+                <p><strong>黄色颜料钒铅矿：</strong>种种迹象表明，我国陕西一带存在钒铅矿。此外，墨西哥、摩洛哥、纳米比亚、美国等多个国家也都有钒铅矿床。</p>
+            `;
+        } else if(type === 'clay') {
+            content.innerHTML = `
+                <h3>黏土来源</h3>
+                <p><strong>骊山北麓：</strong>有观点认为制作陶俑的原料主要是取自骊山北麓的黏土，此地黏土土质细腻、黏性强，经过淘洗、沉淀等精细工序去除杂质后，可成为制作陶俑的优质材料。</p>
+                <p><strong>秦陵附近垆土层：</strong>通过对秦陵1号坑和2号坑的陶俑、陶马样品，以及秦陵附近黏土样品等进行中子活化分析和模糊聚类分析，结果表明兵马俑样品与秦陵附近的垆土关系极为密切，由此推断兵马俑的原料可能取自骊山地区的某些垆土层。</p>
+                <p><strong>秦代关中地区：</strong>有专家认为制作兵马俑的陶土应该取自于秦代关中地区的黑垆土，这种土遇到水之后粘度比较高，方便工匠进行捏制，干燥之后硬度又比较高，有利于长时间保存。</p>
+                <p><strong>咸阳地区或更广阔范围：</strong>秦始皇帝陵的建造有着严密的组织和规划，大规模制作陶俑时，其选土、制备可能是国家专业机构的大规模专业行为，从咸阳地区甚至更广阔的关中地区乃至全国范围内统一调配黏土也存在可能性。</p>
+            `;
+        }
+        
+        modal.style.display = "block";
+    }
+    
+    function closeMaterialInfo() {
+        document.getElementById('material-info-modal').style.display = "none";
+    }
+    
+    // 点击模态框外部关闭
+    window.onclick = function(event) {
+        const modal = document.getElementById('material-info-modal');
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+    function showColorDetails(color) {
+    // 隐藏所有颜色详情
+    document.querySelectorAll('.color-details').forEach(detail => {
+        detail.style.display = 'none';
+    });
+    
+    // 显示选中的颜色详情
+    const detailElement = document.getElementById(`${color}-details`);
+    if (detailElement) {
+        detailElement.style.display = 'block';
+        
+        // 添加动画效果
+        gsap.from(detailElement, {
+            opacity: 0,
+            y: 20,
+            duration: 0.5
+        });
+    }
+}
+
+// 为颜色选项添加点击事件
+document.querySelectorAll('.color-option').forEach(option => {
+    option.addEventListener('click', function() {
+        const color = this.getAttribute('data-color');
+        showColorDetails(color);
+    });
+});
+
+// 默认显示红色详情（可选）
+document.addEventListener('DOMContentLoaded', function() {
+    showColorDetails('red');
+});
+    </script>
+    
+</body>
+</html>
