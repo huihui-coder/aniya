@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交互作业</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="JavaScript.js"></script>
+
+</head>
+<body>
+    <div class="scenes-container" id="scenesContainer">
+        <div class="scene" id="scene1">
+            <div class="top-banner">
+                <img src="图片/上栏杆.PNG" alt="顶部图片">
+            </div>
+            <img class="red-rectangle" src="图片/梅花.png" alt="图片描述">
+            <div class="image-rectangle">
+                <img src="图片/脸谱.PNG" alt="右侧装饰图片">
+            </div>
+            <div class="left-image-container">
+                <img src="图片/京剧文字.PNG" alt="左侧装饰图片">
+            </div>
+            <div class="small-image-container">
+                <img src="图片/古文字.PNG" alt="小图片描述">
+            </div>
+            <button class="start-button" id="startButton">开始了解</button>
+    
+            <div class="scene-content">
+                <!-- 这里放第1幕的主要内容 -->
+            </div>
+            <div class="bottom-banner">
+                <img src="图片/下栏杆.PNG" alt="底部图片">
+            </div>
+    
+        </div>
+
+        <div class="scene" id="scene2" style="display:none;">
+            <div class="corner-image top-left">
+                <img src="图片/梅花 - 副本.png" alt="左上装饰图">
+            </div>
+            <div class="corner-image top-right">
+                <img src="图片/女旦.PNG" alt="右上装饰图">
+            </div>
+            <div class="center-image"  id="centerImage">
+                <img src="图片/边框.PNG" alt="中心装饰图">
+                <div class="hidden-text" id="animatedText"></div>
+            </div>
+            <div class="cat-container">
+                <div class="cat-icon" id="catIcon" style="display: none;">
+                    <img src="图片/猫本体.PNG" alt="小猫图标">
+                </div>
+                <div class="cat-dialog" id="catDialog" style="display: none;">
+                    <div class="dialog-arrow"></div>
+                    <div class="dialog-content" id="dialogContent"></div>
+                </div>
+            </div>
+            
+            <div class="silk-image-container" id="silkImage" style="display: none;">
+                <img src="图片/方框.PNG" alt="方框图片">
+                <div class="silk-text-content">
+                    <p>京剧(Beijing Opera),又称平剧、京戏等，中国国粹之一，是中国影响力最大的戏曲剧种，分布地以北京为中心，遍及全国各地。</p>
+                    <p>京剧现在的角色分为生、旦、净、丑四种。京剧流播全国，影响甚广，有"国剧"之称。以梅兰芳命名的京剧表演体系被视为东方戏剧表演体系的代表，为世界三大表演体系之一。京剧是中华民族传统文化的重要表现形式，其中的多种艺术元素被喻作中国传统文化的象征符号。</p>
+                </div>
+                <div class="gray-mask"></div> <!-- 新增的灰色蒙版 -->
+            </div>
+                    
+            <div class="custom-image-container left-bottom">
+                <img src="图片/红脸.PNG" alt="装饰图片">
+            </div>
+            <div class="custom-image-container right-bottom">
+                <img src="图片/灰脸.PNG" alt="装饰灰图片">
+            </div>
+
+            <div class="next-scene-btn-container" id="nextSceneBtnContainer">
+                <button class="next-scene-btn" id="nextSceneBtn">进入下一幕</button>
+            </div>
+
+        </div>
+
+        <div class="scene" id="scene3">
+            <div class="scene3-bg"></div>
+            <div class="cat-person-container">
+                <img src="图片/猫本体.PNG" alt="小猫人" class="cat-person">
+                <div class="cat-dialog-bubble">
+                    <div class="dialog-content1"></div>
+                </div>
+            </div>
+            <div class="green-face-container">
+                <img src="图片/绿脸.PNG" alt="绿脸" class="green-face">
+            </div>
+            <div class="purple-image-container">
+                <img src="图片/第三幕边框.PNG" alt="紫色图片" class="purple-image">
+                <div class="face-text">脸谱</div> <!-- 新增的文字元素 -->
+            </div>
+            <div class="pink-face-container">
+                <img src="图片/粉花旦.PNG" alt="粉花旦" class="pink-face">
+            </div>
+            <div class="earth-image-container" id="earthImage" style="display: none;">
+                <img src="图片/第三幕边框.PNG" alt="土色图片">
+                <div class="earth-text">角色</div>
+            </div>
+            <div class="pipa-container">
+                <img src="图片/琵琶.PNG" alt="琵琶" class="pipa">
+            </div>
+            <div class="amber-image-container" id="amberImage" style="display: none;">
+                <img src="图片/第三幕边框.PNG" alt="珀色图片">
+                <div class="amber-text">经典剧目</div>
+            </div>
+
+            
+
+        </div>
+
+        <div class="scene" id="scene4">
+            <div class="scene4-bg"></div>
+            <div class="golden-frame">
+                <img src="图片/边框.PNG" alt="金色边框">
+                <!-- 新增文字容器 -->
+                <div class="frame-text">京剧脸谱</div>
+                <div class="slide-hint">滑动查看</div>
+
+                <div class="carousel-container">
+                    <div class="carousel" id="face-carousel">
+                        <div class="carousel-face"><img src="图片/完整红脸.PNG" alt="脸谱1"></div>
+                        <div class="carousel-face"><img src="图片/绿脸.PNG" alt="脸谱2"></div>
+                        <div class="carousel-face"><img src="图片/蓝脸.PNG" alt="脸谱3"></div>
+                        <div class="carousel-face"><img src="图片/黄脸.PNG" alt="脸谱4"></div>
+                        <div class="carousel-face"><img src="图片/完整灰脸.PNG" alt="脸谱5"></div>
+                        <div class="carousel-face"><img src="图片/棕脸.PNG" alt="脸谱6"></div>
+                    </div>
+                    
+                    <div class="carousel-controls">
+                        <div class="carousel-arrow" id="carousel-prev">❮</div>
+                        <div class="carousel-arrow" id="carousel-next">❯</div>
+                    </div>
+                </div>
+                
+            </div>
+
+            <div class="orange-image-container" id="orangeImage">
+                <img src="图片/方框.PNG" alt="橙色图片">
+                <div class="kick-here">点击这里试试</div>
+                <div class="cultural-text">
+                    京剧脸谱<br>
+                    非遗瑰宝<br>
+                    色彩斑斓人生百态<br>
+                    传承千年文化精髓<br>
+                    一笔一划皆故事<br>
+                    一抹一晕显风华<br>
+                    让国粹之光照亮华夏文明<br>
+                    续写非遗传奇
+                </div> <!-- 新增这行 -->
+   
+            </div>
+
+
+            <div class="scene4-content">
+                <button class="back-btn">返回</button>
+            </div>
+
+        </div>
+
+        <div class="scene" id="scene5">
+            <div class="scene5-bg"></div> 
+            <div class="scene5-content">
+                <div class="image-grid">
+                    <div class="grid-item drop-target" data-accept="rectangle-1">
+                        <img src="图片/画卷.PNG" alt="图片1" class="grid-image">
+                        <div class="role-label" data-role="生">丑</div>
+                    </div>
+                    <div class="grid-item drop-target" data-accept="rectangle-2">
+                        <img src="图片/画卷.PNG" alt="图片2" class="grid-image">
+                        <div class="role-label" data-role="旦">生</div>
+                    </div>
+                    <div class="grid-item drop-target" data-accept="rectangle-3">
+                        <img src="图片/画卷.PNG" alt="图片3" class="grid-image">
+                        <div class="role-label" data-role="净">旦</div>
+                    </div>
+                    <div class="grid-item drop-target" data-accept="rectangle-4">
+                        <img src="图片/画卷.PNG" alt="图片4" class="grid-image">
+                        <div class="role-label" data-role="丑">净</div>
+                    </div>
+                </div>
+                <div class="draggable-rectangle rectangle-1" draggable="true" data-rectangle="rectangle-1"></div>
+                <div class="draggable-rectangle rectangle-2" draggable="true" data-rectangle="rectangle-2"></div>
+                <div class="draggable-rectangle rectangle-3" draggable="true" data-rectangle="rectangle-3"></div>
+                <div class="draggable-rectangle rectangle-4" draggable="true" data-rectangle="rectangle-4"></div>
+
+                <button class="back-btn">返回</button>
+            </div>
+        </div>
+
+        <div class="scene" id="scene6">
+            <div class="scene6-bg"></div>
+            <div class="flower top-left">
+                <img src="图片/梅花 - 副本.png" alt="左上装饰图">
+            </div> 
+            <div class="center-image1"  id="centerImage1">
+                <img src="图片/边框.PNG" alt="中心装饰图">
+                <div class="hidden-text1" id="animatedText1"></div>
+            </div>
+            <div class="white-paper" id="whitePaper">
+                <img src="图片/白纸背景.PNG" alt="白纸背景">
+                <div class="slider-container">
+                    <div class="slider-text">滑动解锁查看更多内容</div>
+                    <div class="slider-track">
+                        <div class="slider-thumb" id="sliderThumb"></div>
+                    </div>
+                </div>
+                <div class="content-container" id="contentContainer">
+                    <!-- 这里将通过JavaScript动态添加内容 -->
+                </div>
+            </div>
+            <div class="scene6-content">
+                <button class="back-btn">返回</button>
+            </div>
+        </div>
+
+        <div class="scene" id="scene7">
+            <!-- 这里放第7幕内容 -->
+        </div>
+
+    
+    </div>
+</body>
+</html>
